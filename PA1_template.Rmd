@@ -21,37 +21,51 @@ The device used, collects data at 5 minute intervals. The data consists of two m
 
 The data used in this assignment can be downloaded from this [Link](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) on the course website, it is also included in the [github repository](https://github.com/devender/RepData_PeerAssessment1).
 
-```{r echo=FALSE, results="hide"}
+##### R workspace setup
+```{r warning=FALSE,message=FALSE,results="hide"}
+library(data.table)
+library(dplyr)
+library(ggplot2)
+
 # Setup Working dir
 setwd("/Users/Devender/RepData_PeerAssessment1")
 # Clean up work space
 rm(list=ls())
 gc()
-```
-
-## Loading and preprocessing the data
-```{r echo=FALSE, results="hide"}
 if(!file.exists("activity.csv")){
     unzip("activity.zip")
 }
 ```
 
+## Loading and preprocessing the data
+Reading the CSV file into a data frame.
 ```{r}
 activityData <- read.csv("activity.csv", header= T, na.strings = c("NA"))
 str(activityData)
-dim(activityData)
-names(activityData)
 ```
 
-#### Histogram of the total number of steps taken each day
-```{r echo=FALSE, results="hide"}
-    library(data.table)
-    library(dplyr)
-    library(ggplot2)
-    
-```{r}
-## What is mean total number of steps taken per day?
+## Data Exploration
 
+Subsetting the data and grouping by each day, gives us total number of steps for each day.
+```{r warning=FALSE}
+stepsByDay <- activityData %>% 
+                select(steps, date) %>% 
+                group_by(date) %>% 
+                summarise(total_steps = sum(steps))
+head(stepsByDay)
+```
+Using the above data we can plot a histogram of the total number of steps taken each day
+
+```{r warning=FALSE}
+ggplot(stepsByDay, aes(x=total_steps)) + 
+    geom_histogram(aes(y=..density..), colour="black", fill="white", bins=30)+
+    geom_density(alpha=.2, fill="#FF6666") +
+    ggtitle("Number of steps taken per day")
+```
+####
+
+
+## What is mean total number of steps taken per day?
 
 
 ## What is the average daily activity pattern?

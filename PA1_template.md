@@ -13,13 +13,27 @@ The device used, collects data at 5 minute intervals. The data consists of two m
 
 ## Data Source
 
-The data used in this assignment can be downloaded from this [LINK](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip).
+The data used in this assignment can be downloaded from this [Link](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) on the course website, it is also included in the [github repository](https://github.com/devender/RepData_PeerAssessment1).
 
+##### R workspace setup
 
+```r
+library(data.table)
+library(dplyr)
+library(ggplot2)
+
+# Setup Working dir
+setwd("/Users/Devender/RepData_PeerAssessment1")
+# Clean up work space
+rm(list=ls())
+gc()
+if(!file.exists("activity.csv")){
+    unzip("activity.zip")
+}
+```
 
 ## Loading and preprocessing the data
-
-
+Reading the CSV file into a data frame.
 
 ```r
 activityData <- read.csv("activity.csv", header= T, na.strings = c("NA"))
@@ -33,54 +47,45 @@ str(activityData)
 ##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 
-```r
-dim(activityData)
-```
+## Data Exploration
 
-```
-## [1] 17568     3
-```
+Subsetting the data and grouping by each day, gives us total number of steps for each day.
 
 ```r
-names(activityData)
+stepsByDay <- activityData %>% 
+                select(steps, date) %>% 
+                group_by(date) %>% 
+                summarise(total_steps = sum(steps))
+head(stepsByDay)
 ```
 
 ```
-## [1] "steps"    "date"     "interval"
-```
-
-#### Histogram of the total number of steps taken each day
-
-```
+## Source: local data frame [6 x 2]
 ## 
-## Attaching package: 'dplyr'
+##         date total_steps
+##       (fctr)       (int)
+## 1 2012-10-01          NA
+## 2 2012-10-02         126
+## 3 2012-10-03       11352
+## 4 2012-10-04       12116
+## 5 2012-10-05       13294
+## 6 2012-10-06       15420
 ```
+Using the above data we can plot a histogram of the total number of steps taken each day
 
-```
-## The following objects are masked from 'package:data.table':
-## 
-##     between, last
-```
-
-```
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-```
-
-```
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-```
-
-```
-## Warning: package 'ggplot2' was built under R version 3.2.4
-```
 
 ```r
+ggplot(stepsByDay, aes(x=total_steps)) + 
+    geom_histogram(aes(y=..density..), colour="black", fill="white", bins=30)+
+    geom_density(alpha=.2, fill="#FF6666") +
+    ggtitle("Number of steps taken per day")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)
+####
+
+
 ## What is mean total number of steps taken per day?
-
 
 
 ## What is the average daily activity pattern?
@@ -92,4 +97,3 @@ names(activityData)
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```
