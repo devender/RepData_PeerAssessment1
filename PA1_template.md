@@ -47,13 +47,15 @@ str(activityData)
 ##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 
-## Data Exploration
+## What is mean total number of steps taken per day ?
 
 Subsetting the data and grouping by each day, gives us total number of steps for each day.
+
 
 ```r
 stepsByDay <- activityData %>% 
                 select(steps, date) %>% 
+                filter(!is.na(steps)) %>%
                 group_by(date) %>% 
                 summarise(total_steps = sum(steps))
 head(stepsByDay)
@@ -64,32 +66,59 @@ head(stepsByDay)
 ## 
 ##         date total_steps
 ##       (fctr)       (int)
-## 1 2012-10-01          NA
-## 2 2012-10-02         126
-## 3 2012-10-03       11352
-## 4 2012-10-04       12116
-## 5 2012-10-05       13294
-## 6 2012-10-06       15420
+## 1 2012-10-02         126
+## 2 2012-10-03       11352
+## 3 2012-10-04       12116
+## 4 2012-10-05       13294
+## 5 2012-10-06       15420
+## 6 2012-10-07       11015
 ```
 Using the above data we can plot a histogram of the total number of steps taken each day
 
 
 ```r
 ggplot(stepsByDay, aes(x=total_steps)) + 
-    geom_histogram(aes(y=..density..), colour="black", fill="white", bins=30)+
-    geom_density(alpha=.2, fill="#FF6666") +
-    ggtitle("Number of steps taken per day")
+    geom_histogram(colour="black", fill="white", bins=10)+
+    xlab("Steps") +ylab("Frequency") +
+    ggtitle("Total number of steps taken each day")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)
-####
 
+##### Calculate and report the mean and median of the total number of steps taken per day:
 
-## What is mean total number of steps taken per day?
+```r
+mean(stepsByDay$total_steps)
+```
 
+```
+## [1] 10766.19
+```
+
+```r
+median(stepsByDay$total_steps)
+```
+
+```
+## [1] 10765
+```
 
 ## What is the average daily activity pattern?
 
+```r
+avgActivityPattern <- activityData %>%
+            select(steps,interval)%>%
+            filter(!is.na(steps)) %>%
+            group_by(interval) %>% 
+            summarise(avg_steps = mean(steps))
+
+ggplot(avgActivityPattern, aes(x=interval)) + 
+    geom_line( aes(y=avg_steps)) +
+    xlab("Interval of Day") +ylab("Average Number of Steps") +
+    ggtitle("Avg Daily Activity Pattern")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)
 
 
 ## Imputing missing values

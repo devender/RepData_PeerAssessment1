@@ -44,12 +44,14 @@ activityData <- read.csv("activity.csv", header= T, na.strings = c("NA"))
 str(activityData)
 ```
 
-## Data Exploration
+## What is mean total number of steps taken per day ?
 
 Subsetting the data and grouping by each day, gives us total number of steps for each day.
+
 ```{r warning=FALSE}
 stepsByDay <- activityData %>% 
                 select(steps, date) %>% 
+                filter(!is.na(steps)) %>%
                 group_by(date) %>% 
                 summarise(total_steps = sum(steps))
 head(stepsByDay)
@@ -58,18 +60,30 @@ Using the above data we can plot a histogram of the total number of steps taken 
 
 ```{r warning=FALSE}
 ggplot(stepsByDay, aes(x=total_steps)) + 
-    geom_histogram(aes(y=..density..), colour="black", fill="white", bins=30)+
-    geom_density(alpha=.2, fill="#FF6666") +
-    ggtitle("Number of steps taken per day")
+    geom_histogram(colour="black", fill="white", bins=10)+
+    xlab("Steps") +ylab("Frequency") +
+    ggtitle("Total number of steps taken each day")
 ```
-####
 
-
-## What is mean total number of steps taken per day?
-
+##### Calculate and report the mean and median of the total number of steps taken per day:
+```{r}
+mean(stepsByDay$total_steps)
+median(stepsByDay$total_steps)
+```
 
 ## What is the average daily activity pattern?
+```{r}
+avgActivityPattern <- activityData %>%
+            select(steps,interval)%>%
+            filter(!is.na(steps)) %>%
+            group_by(interval) %>% 
+            summarise(avg_steps = mean(steps))
 
+ggplot(avgActivityPattern, aes(x=interval)) + 
+    geom_line( aes(y=avg_steps)) +
+    xlab("Interval of Day") +ylab("Average Number of Steps") +
+    ggtitle("Avg Daily Activity Pattern")
+```
 
 
 ## Imputing missing values
