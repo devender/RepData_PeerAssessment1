@@ -1,11 +1,5 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-author: "Devender R. Gollapally"
-output: 
-  html_document:
-    keep_md: true
-    
----
+# Reproducible Research: Peer Assessment 1
+Devender R. Gollapally  
 
 ## Introduction
 
@@ -19,37 +13,72 @@ The device used, collects data at 5 minute intervals. The data consists of two m
 
 ## Data Source
 
-The data used in this assignment can be downloaded from this [Link](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) on the course website, it is also included in the [github repository](https://github.com/devender/RepData_PeerAssessment1).
+The data used in this assignment can be downloaded from this [LINK](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip).
 
-```{r echo=FALSE, results="hide"}
-# Setup Working dir
-setwd("/Users/Devender/RepData_PeerAssessment1")
-# Clean up work space
-rm(list=ls())
-gc()
-```
+
 
 ## Loading and preprocessing the data
-```{r echo=FALSE, results="hide"}
-if(!file.exists("activity.csv")){
-    unzip("activity.zip")
-}
-```
 
-```{r}
+
+
+```r
 activityData <- read.csv("activity.csv", header= T, na.strings = c("NA"))
 str(activityData)
+```
+
+```
+## 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+```
+
+```r
 dim(activityData)
+```
+
+```
+## [1] 17568     3
+```
+
+```r
 names(activityData)
 ```
 
+```
+## [1] "steps"    "date"     "interval"
+```
+
 #### Histogram of the total number of steps taken each day
-```{r echo=FALSE, results="hide"}
-    library(data.table)
-    library(dplyr)
-    library(ggplot2)
-    
-```{r}
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:data.table':
+## 
+##     between, last
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.2.4
+```
+
+```r
 ## What is mean total number of steps taken per day?
 
 
@@ -63,3 +92,4 @@ names(activityData)
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```
