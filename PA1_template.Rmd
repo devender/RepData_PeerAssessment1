@@ -168,3 +168,5 @@ compareWeekdayVsWeekend <- activityDataFixed %>%
 
 ggplot(compareWeekdayVsWeekend, aes(x = interval, y = mean)) + ylab("Number of Steps") + geom_line() + facet_grid(wday~.)
 ```
+
+From the above comparison we can clearly see there is a difference between weekdays and weekends.
