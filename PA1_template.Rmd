@@ -42,7 +42,6 @@ if(!file.exists("activity.csv")){
 Reading the CSV file into a data frame so that we can use if for later processing.
 ```{r}
 activityData <- read.csv("activity.csv", header= T, na.strings = c("NA"), stringsAsFactors = F)
-names(activityData)<-c("steps","date","inter")
 str(activityData)
 ```
 
@@ -69,20 +68,20 @@ ggplot(stepsByDay, aes(x=total_steps)) +
 
 ##### Calculate and report the mean and median of the total number of steps taken per day:
 ```{r}
-averageNumberStepsPerDay<-mean(stepsByDay$total_steps)
-medianNumberStepsPerDay<-median(stepsByDay$total_steps)
+mean(stepsByDay$total_steps, na.rm =TRUE)
+median(stepsByDay$total_steps, na.rm=TRUE)
 ```
-Average number of steps per day `r averageNumberStepsPerDay` and median is `r medianNumberStepsPerDay`
+
 
 ## What is the average daily activity pattern?
 Lets compute during what times of the day the person is more active.
 ```{r}
 avgActivityPattern <- activityData %>%
     filter(!is.na(steps)) %>%
-    group_by(inter) %>% 
+    group_by(interval) %>% 
     summarise(avg_steps = mean(steps))
 
-ggplot(avgActivityPattern, aes(x=inter)) + 
+ggplot(avgActivityPattern, aes(x=interval)) + 
     geom_line( aes(y=avg_steps)) +
     xlab("Interval of Day") +ylab("Average Number of Steps") +
     ggtitle("Avg Daily Activity Pattern")
@@ -90,7 +89,7 @@ ggplot(avgActivityPattern, aes(x=inter)) +
 
 ##### The 5-minute interval that, on average, contains the maximum number of steps:
 ```{r}
-avgActivityPattern %>% arrange(desc(avg_steps)) %>% select(inter) %>% head(1) %>% as.numeric
+avgActivityPattern %>% arrange(desc(avg_steps)) %>% select(interval) %>% head(1) %>% as.numeric
 ```
 ## Imputing missing values
 
@@ -142,8 +141,30 @@ mean(stepsByDayFixed$total_steps)
 median(stepsByDayFixed$total_steps)
 ```
 
-### Question: Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+### Impact of imputing missing data
 
-
+We see that by imputing the missing data with 0 effects both the density functions (mean and median).
 
 ## Are there differences in activity patterns between weekdays and weekends?
+First we will add another column to indicate if it is a weekend or a weekday.
+
+```{r}
+isWeekend <- function(dt){
+    if(weekdays(ymd(dt)) %in% c("Sunday","Saturday")){
+        return("WEEKEND")
+    }else{
+        return("WEEKDAY")
+    }
+}
+
+activityDataFixed=activityDataFixed %>% rowwise() %>% mutate(wday = isWeekend(date))
+```
+Next we will plot Average by weekday and weekend.
+
+```{r}
+compareWeekdayVsWeekend <- activityDataFixed %>% 
+    group_by(wday,interval) %>% 
+    summarise(mean=mean(steps))
+
+ggplot(compareWeekdayVsWeekend, aes(x = interval, y = mean)) + ylab("Number of Steps") + geom_line() + facet_grid(wday~.)
+```

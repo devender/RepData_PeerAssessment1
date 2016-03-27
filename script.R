@@ -14,21 +14,31 @@ if(!file.exists("activity.csv")){
 
 #read the csv
 activityData <- read.csv("activity.csv", header= T, na.strings = c("NA"), stringsAsFactors = F)
-names(activityData)<-c("steps","date","inter")
-str(activityData)
 
 avgActivityPattern <- activityData %>%
     filter(!is.na(steps)) %>%
-    group_by(inter) %>% 
+    group_by(interval) %>% 
     summarise(avg_steps = mean(steps))
 
-findMean <- function(interval){
-    subset(avgActivityPattern, avgActivityPattern$inter == interval)$avg_steps
-}
 activityDataFixed = within(activityData, {
-    newSteps = ifelse(is.na(steps), 0 , steps)
+    steps = ifelse(is.na(steps), 0 , steps)
 })
 
+stepsByDayFixed <- activityDataFixed %>% 
+    select(steps, date) %>% 
+    group_by(date) %>% 
+    summarise(total_steps = sum(steps))
 
+isWeekend <- function(dt){
+    if(weekdays(ymd(dt)) %in% c("Sunday","Saturday")){
+        return("WEEKEND")
+    }else{
+        return("WEEKDAY")
+    }
+}
+activityDataFixed=activityDataFixed %>% rowwise() %>% mutate(wday = isWeekend(date))
 
+aa <- activityDataFixed %>% 
+    group_by(wday,interval) %>% 
+    summarise(mean=mean(steps))
 

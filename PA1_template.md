@@ -38,15 +38,14 @@ Reading the CSV file into a data frame so that we can use if for later processin
 
 ```r
 activityData <- read.csv("activity.csv", header= T, na.strings = c("NA"), stringsAsFactors = F)
-names(activityData)<-c("steps","date","inter")
 str(activityData)
 ```
 
 ```
 ## 'data.frame':	17568 obs. of  3 variables:
-##  $ steps: int  NA NA NA NA NA NA NA NA NA NA ...
-##  $ date : chr  "2012-10-01" "2012-10-01" "2012-10-01" "2012-10-01" ...
-##  $ inter: int  0 5 10 15 20 25 30 35 40 45 ...
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : chr  "2012-10-01" "2012-10-01" "2012-10-01" "2012-10-01" ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 
 ## What is mean total number of steps taken per day ?
@@ -90,10 +89,21 @@ ggplot(stepsByDay, aes(x=total_steps)) +
 ##### Calculate and report the mean and median of the total number of steps taken per day:
 
 ```r
-averageNumberStepsPerDay<-mean(stepsByDay$total_steps)
-medianNumberStepsPerDay<-median(stepsByDay$total_steps)
+mean(stepsByDay$total_steps, na.rm =TRUE)
 ```
-Average number of steps per day 1.0766189\times 10^{4} and median is 10765
+
+```
+## [1] 10766.19
+```
+
+```r
+median(stepsByDay$total_steps, na.rm=TRUE)
+```
+
+```
+## [1] 10765
+```
+
 
 ## What is the average daily activity pattern?
 Lets compute during what times of the day the person is more active.
@@ -101,10 +111,10 @@ Lets compute during what times of the day the person is more active.
 ```r
 avgActivityPattern <- activityData %>%
     filter(!is.na(steps)) %>%
-    group_by(inter) %>% 
+    group_by(interval) %>% 
     summarise(avg_steps = mean(steps))
 
-ggplot(avgActivityPattern, aes(x=inter)) + 
+ggplot(avgActivityPattern, aes(x=interval)) + 
     geom_line( aes(y=avg_steps)) +
     xlab("Interval of Day") +ylab("Average Number of Steps") +
     ggtitle("Avg Daily Activity Pattern")
@@ -115,7 +125,7 @@ ggplot(avgActivityPattern, aes(x=inter)) +
 ##### The 5-minute interval that, on average, contains the maximum number of steps:
 
 ```r
-avgActivityPattern %>% arrange(desc(avg_steps)) %>% select(inter) %>% head(1) %>% as.numeric
+avgActivityPattern %>% arrange(desc(avg_steps)) %>% select(interval) %>% head(1) %>% as.numeric
 ```
 
 ```
@@ -156,9 +166,9 @@ str(activityDataFixed)
 
 ```
 ## 'data.frame':	17568 obs. of  3 variables:
-##  $ steps: num  0 0 0 0 0 0 0 0 0 0 ...
-##  $ date : chr  "2012-10-01" "2012-10-01" "2012-10-01" "2012-10-01" ...
-##  $ inter: int  0 5 10 15 20 25 30 35 40 45 ...
+##  $ steps   : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ date    : chr  "2012-10-01" "2012-10-01" "2012-10-01" "2012-10-01" ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 Now that we have created a new column with the mising steps fixed lets recreate the histogram to see if there is a difference
 
@@ -213,8 +223,40 @@ median(stepsByDayFixed$total_steps)
 ## [1] 10395
 ```
 
-### Question: Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+### Impact of imputing missing data
 
-
+We see that by imputing the missing data with 0 effects both the density functions (mean and median).
 
 ## Are there differences in activity patterns between weekdays and weekends?
+First we will add another column to indicate if it is a weekend or a weekday.
+
+
+```r
+isWeekend <- function(dt){
+    if(weekdays(ymd(dt)) %in% c("Sunday","Saturday")){
+        return("WEEKEND")
+    }else{
+        return("WEEKDAY")
+    }
+}
+
+activityDataFixed=activityDataFixed %>% rowwise() %>% mutate(wday = isWeekend(date))
+```
+Next we will plot Average by weekday and weekend.
+
+
+```r
+compareWeekdayVsWeekend <- activityDataFixed %>% 
+    group_by(wday,interval) %>% 
+    summarise(mean=mean(steps))
+```
+
+```
+## Warning: Grouping rowwise data frame strips rowwise nature
+```
+
+```r
+ggplot(compareWeekdayVsWeekend, aes(x = interval, y = mean)) + ylab("Number of Steps") + geom_line() + facet_grid(wday~.)
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-14-1.png)
