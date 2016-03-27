@@ -260,3 +260,5 @@ ggplot(compareWeekdayVsWeekend, aes(x = interval, y = mean)) + ylab("Number of S
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-14-1.png)
+
+From the above comparison we can clearly see there is a difference between weekdays and weekends.
